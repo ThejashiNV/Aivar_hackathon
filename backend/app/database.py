@@ -1,14 +1,32 @@
 from sqlalchemy import create_engine
+from sqlalchemy.engine import URL
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 from app.config import settings
 
+
+def _build_url():
+    if settings.DB_HOST:
+        return URL.create(
+            drivername="postgresql+psycopg",
+            username=settings.DB_USER,
+            password=settings.DB_PASSWORD,
+            host=settings.DB_HOST,
+            port=settings.DB_PORT,
+            database=settings.DB_NAME,
+            query={"sslmode": "require"},
+        )
+    return settings.DATABASE_URL
+
+
+db_url = _build_url()
+
 connect_args = {}
-if settings.DATABASE_URL.startswith("sqlite"):
+if isinstance(db_url, str) and db_url.startswith("sqlite"):
     connect_args["check_same_thread"] = False
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    db_url,
     pool_pre_ping=True,
     echo=False,
     connect_args=connect_args,

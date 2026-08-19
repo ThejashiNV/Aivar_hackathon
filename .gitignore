@@ -28,4 +28,5 @@ Thumbs.db
 
 # Secrets
 *.pem
-*.key*.db
+*.key
+*.db

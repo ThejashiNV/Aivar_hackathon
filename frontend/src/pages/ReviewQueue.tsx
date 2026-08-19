@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { api } from '../api';
 import type { ActionSummary, ActionDetail } from '../api';
 import RiskBadge from '../components/RiskBadge';

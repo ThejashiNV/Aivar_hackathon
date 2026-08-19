@@ -54,7 +54,7 @@ export default function ActionDetail() {
                 <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }} />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]}
                   fill="var(--accent-blue)"
-                  label={{ position: 'right', fontSize: 10, fill: 'var(--text-secondary)', formatter: (v: number) => `+${v.toFixed(1)}` }}
+                  label={{ position: 'right', fontSize: 10, fill: 'var(--text-secondary)', formatter: (v: unknown) => `+${Number(v).toFixed(1)}` }}
                 />
               </BarChart>
             </ResponsiveContainer>

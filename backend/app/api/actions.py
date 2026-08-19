@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Agent, Action, Policy, Evaluation, Review
+from app.models import Agent, Action, Policy, Evaluation, Review, AuditEvent
 from app.schemas.schemas import (
     ActionEvaluateRequest,
     ActionEvaluateResponse,
@@ -17,6 +17,7 @@ from app.services.risk_engine import calculate_total_risk
 from app.services.decision_engine import make_decision, generate_explanation
 from app.services.behavior_engine import update_agent_trust
 from app.services.audit_service import create_audit_event
+from app.services.ai_enhancer import enhance_explanation
 
 router = APIRouter(prefix="/api/v1/actions", tags=["actions"])
 
@@ -54,6 +55,10 @@ def evaluate_action(req: ActionEvaluateRequest, db: Session = Depends(get_db)):
     explanation = generate_explanation(
         risk_score, decision, risk_breakdown, context_factors,
         behavioral_factors, req.action_type, req.resource_type,
+    )
+    explanation = enhance_explanation(
+        explanation, risk_score, decision, req.action_type, req.resource_type,
+        risk_breakdown, behavioral_factors,
     )
 
     action = Action(
@@ -131,7 +136,7 @@ def get_action(action_id: str, db: Session = Depends(get_db)):
 
     eval_out = EvaluationOut.model_validate(action.evaluation) if action.evaluation else None
     review_out = ReviewOut.model_validate(action.review) if action.review else None
-    audits = [AuditEventOut.model_validate(e) for e in action.audit_events.order_by("created_at").all()]
+    audits = [AuditEventOut.model_validate(e) for e in action.audit_events.order_by(AuditEvent.created_at).all()]
 
     return ActionDetailOut(
         action=_action_summary(action),

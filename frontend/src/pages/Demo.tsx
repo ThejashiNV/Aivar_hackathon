@@ -17,11 +17,13 @@ export default function Demo() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<DemoResult | null>(null);
   const [currentStep, setCurrentStep] = useState(-1);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const runDemo = async () => {
     setRunning(true);
     setResult(null);
+    setError('');
     setCurrentStep(0);
 
     try {
@@ -34,7 +36,8 @@ export default function Demo() {
       setCurrentStep(3);
       setResult(res);
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Demo failed');
+      setError(e instanceof Error ? e.message : 'Demo failed');
+      setCurrentStep(-1);
     } finally {
       setRunning(false);
     }
@@ -51,7 +54,7 @@ export default function Demo() {
       </div>
 
       {/* Steps Overview */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {STEPS.map((s, i) => (
           <div key={i} className="rounded-xl p-3 text-center transition-all"
             style={{
@@ -74,6 +77,18 @@ export default function Demo() {
             style={{ background: running ? 'var(--border)' : 'var(--accent-blue)', color: '#fff' }}>
             <Play className="w-4 h-4" />
             {running ? 'Running Demo...' : 'Run Live Demo'}
+          </button>
+        </div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <div className="text-center mb-6 p-4 rounded-xl" style={{ background: 'var(--bg-card)', border: '1px solid var(--accent-red)' }}>
+          <div className="text-sm" style={{ color: 'var(--accent-red)' }}>Error: {error}</div>
+          <button onClick={() => { setError(''); setCurrentStep(-1); }}
+            className="mt-2 px-4 py-1.5 rounded-lg text-xs font-medium"
+            style={{ background: 'var(--accent-blue)', color: '#fff' }}>
+            Try Again
           </button>
         </div>
       )}
@@ -113,7 +128,7 @@ export default function Demo() {
                     .slice(0, 4)
                     .map(([k, v]) => (
                       <span key={k} className="text-[10px] px-2 py-0.5 rounded" style={{ background: 'var(--bg-secondary)', color: 'var(--text-muted)' }}>
-                        {k.replace('_', ' ')}: +{v.toFixed(1)}
+                        {k.replace(/_/g, ' ')}: +{v.toFixed(1)}
                       </span>
                     ))}
                 </div>

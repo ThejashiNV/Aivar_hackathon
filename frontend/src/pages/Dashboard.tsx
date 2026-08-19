@@ -11,13 +11,15 @@ const COLORS = ['var(--accent-green)', 'var(--accent-yellow)', 'var(--accent-red
 export default function Dashboard() {
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const load = () => {
-    api.dashboard().then(setData).finally(() => setLoading(false));
+    api.dashboard().then(d => { setData(d); setError(''); }).catch(e => setError(e.message)).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); const iv = setInterval(load, 5000); return () => clearInterval(iv); }, []);
 
+  if (error && !data) return <div className="flex items-center justify-center h-64 text-sm" style={{ color: 'var(--accent-red)' }}>Failed to load dashboard: {error}</div>;
   if (loading || !data) return <div className="flex items-center justify-center h-64 text-sm" style={{ color: 'var(--text-muted)' }}>Loading dashboard...</div>;
 
   const pieData = [
@@ -130,6 +132,9 @@ export default function Dashboard() {
                   <td className="py-2 px-2"><StatusBadge status={a.status} /></td>
                 </tr>
               ))}
+              {data.recent_actions.length === 0 && (
+                <tr><td colSpan={6} className="py-6 text-center text-sm" style={{ color: 'var(--text-muted)' }}>No actions yet. Run the demo to get started.</td></tr>
+              )}
             </tbody>
           </table>
         </div>

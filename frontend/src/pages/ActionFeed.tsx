@@ -8,12 +8,14 @@ import StatusBadge from '../components/StatusBadge';
 export default function ActionFeed() {
   const [actions, setActions] = useState<ActionSummary[]>([]);
   const [filter, setFilter] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const load = () => {
-    api.actions(filter ? `decision=${filter}` : '').then(setActions);
+    api.actions(filter ? `decision=${filter}` : '').then(a => { setActions(a); setError(''); }).catch(e => setError(e.message)).finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); const iv = setInterval(load, 5000); return () => clearInterval(iv); }, [filter]);
+  useEffect(() => { setLoading(true); load(); const iv = setInterval(load, 5000); return () => clearInterval(iv); }, [filter]);
 
   return (
     <div>
@@ -34,6 +36,8 @@ export default function ActionFeed() {
         </div>
       </div>
 
+      {error && !actions.length && <div className="text-sm mb-4 p-3 rounded-lg" style={{ color: 'var(--accent-red)', background: 'var(--bg-card)' }}>Failed to load actions: {error}</div>}
+      {loading && !actions.length && <div className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>Loading actions...</div>}
       <div className="rounded-xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <table className="w-full text-sm">
           <thead>

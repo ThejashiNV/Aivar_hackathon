@@ -9,12 +9,14 @@ import StatusBadge from '../components/StatusBadge';
 export default function ActionDetail() {
   const { id } = useParams<{ id: string }>();
   const [detail, setDetail] = useState<ActionDetailType | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (id) api.action(id).then(setDetail);
+    if (id) api.action(id).then(setDetail).catch(e => setError(e.message));
   }, [id]);
 
-  if (!detail) return <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</div>;
+  if (error) return <div className="text-sm p-4 rounded-lg" style={{ color: 'var(--accent-red)', background: 'var(--bg-card)' }}>Error: {error}</div>;
+  if (!detail) return <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading action details...</div>;
 
   const { action, evaluation, review, audit_events, parameters } = detail;
 
@@ -22,7 +24,7 @@ export default function ActionDetail() {
     ? Object.entries(evaluation.risk_breakdown)
         .filter(([, v]) => v > 0)
         .sort(([, a], [, b]) => b - a)
-        .map(([k, v]) => ({ factor: k.replace('_', ' '), value: v }))
+        .map(([k, v]) => ({ factor: k.replace(/_/g, ' '), value: v }))
     : [];
 
   return (
@@ -70,7 +72,7 @@ export default function ActionDetail() {
               <div className="grid grid-cols-2 gap-2">
                 {Object.entries(evaluation.context_factors).map(([k, v]) => (
                   <div key={k} className="flex justify-between text-xs px-2 py-1.5 rounded" style={{ background: 'var(--bg-secondary)' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>{k.replace('_', ' ')}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{k.replace(/_/g, ' ')}</span>
                     <span className="font-medium">{String(v)}</span>
                   </div>
                 ))}
@@ -114,7 +116,9 @@ export default function ActionDetail() {
       {evaluation && (
         <div className="rounded-xl p-4 mb-5" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
           <h3 className="text-xs font-semibold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>Guardian Explanation</h3>
-          <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{evaluation.explanation}</p>
+          {evaluation.explanation.split('\n\n').map((para, i) => (
+            <p key={i} className="text-sm leading-relaxed mb-2 last:mb-0" style={{ color: para.startsWith('AI Insight:') ? 'var(--accent-blue)' : 'var(--text-secondary)' }}>{para}</p>
+          ))}
         </div>
       )}
 

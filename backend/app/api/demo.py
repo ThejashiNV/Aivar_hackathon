@@ -1,10 +1,9 @@
 import uuid
-import time
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Agent
+from app.models import Agent, Action, AgentBehaviorLog, AuditEvent, Evaluation, Review
 from app.schemas.schemas import (
     ActionEvaluateRequest,
     ActionEvaluateResponse,
@@ -76,9 +75,16 @@ def run_demo(req: DemoRunRequest = DemoRunRequest(), db: Session = Depends(get_d
     finance_agent.violations = 0
     finance_agent.total_actions = 0
 
-    from app.models import Action, AgentBehaviorLog
-    db.query(AgentBehaviorLog).filter(AgentBehaviorLog.agent_id == finance_agent.id).delete()
-    db.query(Action).filter(Action.agent_id == finance_agent.id).delete()
+    agent_action_ids = [
+        a[0] for a in db.query(Action.id).filter(Action.agent_id == finance_agent.id).all()
+    ]
+    if agent_action_ids:
+        db.query(AuditEvent).filter(AuditEvent.action_id.in_(agent_action_ids)).delete(synchronize_session=False)
+        db.query(Review).filter(Review.action_id.in_(agent_action_ids)).delete(synchronize_session=False)
+        db.query(Evaluation).filter(Evaluation.action_id.in_(agent_action_ids)).delete(synchronize_session=False)
+        db.query(Action).filter(Action.id.in_(agent_action_ids)).delete(synchronize_session=False)
+    db.query(AuditEvent).filter(AuditEvent.agent_id == finance_agent.id, AuditEvent.action_id.is_(None)).delete(synchronize_session=False)
+    db.query(AgentBehaviorLog).filter(AgentBehaviorLog.agent_id == finance_agent.id).delete(synchronize_session=False)
     db.flush()
 
     session_id = str(uuid.uuid4())[:8]

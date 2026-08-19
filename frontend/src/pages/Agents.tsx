@@ -11,11 +11,18 @@ function trustColor(score: number) {
 
 export default function Agents() {
   const [agents, setAgents] = useState<Agent[]>([]);
-  useEffect(() => { api.agents().then(setAgents); const iv = setInterval(() => api.agents().then(setAgents), 5000); return () => clearInterval(iv); }, []);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const load = () => api.agents().then(a => { setAgents(a); setError(''); }).catch(e => setError(e.message)).finally(() => setLoading(false));
+    load(); const iv = setInterval(load, 5000); return () => clearInterval(iv);
+  }, []);
 
   return (
     <div>
       <h1 className="text-lg font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Agent Profiles</h1>
+      {error && !agents.length && <div className="text-sm mb-4 p-3 rounded-lg" style={{ color: 'var(--accent-red)', background: 'var(--bg-card)' }}>Failed to load agents: {error}</div>}
+      {loading && !agents.length && <div className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>Loading agents...</div>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {agents.map(a => (
           <Link to={`/agents/${a.id}`} key={a.id}

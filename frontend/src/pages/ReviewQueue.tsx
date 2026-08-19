@@ -92,7 +92,7 @@ export default function ReviewQueue() {
                     .sort(([, a], [, b]) => b - a)
                     .map(([k, v]) => (
                       <div key={k} className="flex items-center justify-between rounded-lg px-3 py-2" style={{ background: 'var(--bg-secondary)' }}>
-                        <span className="text-xs capitalize" style={{ color: 'var(--text-secondary)' }}>{k.replace('_', ' ')}</span>
+                        <span className="text-xs capitalize" style={{ color: 'var(--text-secondary)' }}>{k.replace(/_/g, ' ')}</span>
                         <span className="text-xs font-bold" style={{ color: v > 10 ? 'var(--accent-red)' : v > 5 ? 'var(--accent-yellow)' : 'var(--accent-green)' }}>+{v.toFixed(1)}</span>
                       </div>
                     ))}
@@ -115,7 +115,7 @@ export default function ReviewQueue() {
                 <div className="grid grid-cols-3 gap-2">
                   {Object.entries(selected.evaluation.behavioral_factors).map(([k, v]) => (
                     <div key={k} className="rounded-lg px-3 py-2" style={{ background: 'var(--bg-secondary)' }}>
-                      <div className="text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>{k.replace('_', ' ')}</div>
+                      <div className="text-[10px] uppercase" style={{ color: 'var(--text-muted)' }}>{k.replace(/_/g, ' ')}</div>
                       <div className="text-sm font-bold">{typeof v === 'number' ? v.toFixed(1) : String(v)}</div>
                     </div>
                   ))}

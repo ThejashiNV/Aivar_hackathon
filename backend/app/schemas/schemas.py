@@ -67,17 +67,6 @@ class ActionSummary(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class RiskBreakdown(BaseModel):
-    reversibility: float = 0
-    data_scope: float = 0
-    sensitivity: float = 0
-    financial_impact: float = 0
-    destructive: float = 0
-    regulatory: float = 0
-    context: float = 0
-    behavioral: float = 0
-
-
 class EvaluationOut(BaseModel):
     id: str
     action_id: str

@@ -15,16 +15,18 @@ function trustColor(score: number) {
 export default function AgentDetail() {
   const { id } = useParams<{ id: string }>();
   const [profile, setProfile] = useState<AgentProfile | null>(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (id) {
-      api.agentProfile(id).then(setProfile);
-      const iv = setInterval(() => api.agentProfile(id).then(setProfile), 5000);
+      api.agentProfile(id).then(setProfile).catch(e => setError(e.message));
+      const iv = setInterval(() => api.agentProfile(id).then(setProfile).catch(() => {}), 5000);
       return () => clearInterval(iv);
     }
   }, [id]);
 
-  if (!profile) return <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</div>;
+  if (error) return <div className="text-sm p-4 rounded-lg" style={{ color: 'var(--accent-red)', background: 'var(--bg-card)' }}>Error: {error}</div>;
+  if (!profile) return <div className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading agent profile...</div>;
 
   const trendData = profile.risk_trend.map((s, i) => ({ idx: i + 1, risk: s }));
 
@@ -48,7 +50,7 @@ export default function AgentDetail() {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <StatCard label="Total Actions" value={profile.total_actions} />
         <StatCard label="Violations" value={profile.violations} color={profile.violations > 0 ? 'var(--accent-red)' : undefined} />
         <StatCard label="Trust Score" value={profile.trust_score.toFixed(1)} color={trustColor(profile.trust_score)} />

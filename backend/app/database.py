@@ -14,7 +14,7 @@ def _build_url():
             host=settings.DB_HOST,
             port=settings.DB_PORT,
             database=settings.DB_NAME,
-            query={"sslmode": "require"},
+            query={"sslmode": settings.DB_SSLMODE},
         )
     return settings.DATABASE_URL
 

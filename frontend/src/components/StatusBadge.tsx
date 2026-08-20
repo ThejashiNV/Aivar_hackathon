@@ -1,18 +1,18 @@
-const statusStyles: Record<string, { bg: string; color: string }> = {
-  executed: { bg: 'var(--accent-green)', color: 'var(--accent-green)' },
-  approved: { bg: 'var(--accent-blue)', color: 'var(--accent-blue)' },
-  pending: { bg: 'var(--accent-yellow)', color: 'var(--accent-yellow)' },
-  rejected: { bg: 'var(--accent-red)', color: 'var(--accent-red)' },
+const statusStyles: Record<string, { color: string; bg: string; glow: string }> = {
+  executed: { color: 'var(--risk-low)', bg: 'var(--risk-low-bg)', glow: 'rgba(91,185,116,0.3)' },
+  approved: { color: 'var(--accent-blue)', bg: 'rgba(91,155,213,0.12)', glow: 'rgba(91,155,213,0.3)' },
+  pending: { color: 'var(--risk-medium)', bg: 'var(--risk-medium-bg)', glow: 'rgba(232,168,56,0.3)' },
+  rejected: { color: 'var(--risk-high)', bg: 'var(--risk-high-bg)', glow: 'rgba(232,93,74,0.3)' },
 };
 
 export default function StatusBadge({ status }: { status: string }) {
-  const s = statusStyles[status] || { bg: 'var(--text-muted)', color: 'var(--text-muted)' };
+  const s = statusStyles[status] || { color: 'var(--text-muted)', bg: 'rgba(139,107,78,0.1)', glow: 'transparent' };
   return (
     <span
-      className="inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px] font-semibold uppercase"
-      style={{ background: `${s.bg}18`, color: s.color, border: `1px solid ${s.color}40` }}
+      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider"
+      style={{ background: s.bg, color: s.color }}
     >
-      <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.color }} />
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: s.color, boxShadow: `0 0 6px ${s.glow}` }} />
       {status}
     </span>
   );

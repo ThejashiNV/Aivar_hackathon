@@ -4,31 +4,30 @@ interface Props {
   size?: 'sm' | 'md' | 'lg';
 }
 
-const decisionColors: Record<string, string> = {
-  autonomous: 'var(--accent-green)',
-  confirm: 'var(--accent-yellow)',
-  full_review: 'var(--accent-red)',
-};
-
-const decisionLabels: Record<string, string> = {
-  autonomous: 'AUTONOMOUS',
-  confirm: 'CONFIRM',
-  full_review: 'FULL REVIEW',
+const decisionConfig: Record<string, { color: string; bg: string; label: string }> = {
+  autonomous: { color: 'var(--risk-low)', bg: 'var(--risk-low-bg)', label: 'AUTONOMOUS' },
+  confirm: { color: 'var(--risk-medium)', bg: 'var(--risk-medium-bg)', label: 'CONFIRM' },
+  full_review: { color: 'var(--risk-high)', bg: 'var(--risk-high-bg)', label: 'FULL REVIEW' },
 };
 
 export default function RiskBadge({ score, decision, size = 'sm' }: Props) {
-  const color = decision ? decisionColors[decision] || 'var(--text-muted)' : 'var(--text-muted)';
-  const label = decision ? decisionLabels[decision] || decision.toUpperCase() : '—';
-  const fontSize = size === 'lg' ? '14px' : size === 'md' ? '12px' : '11px';
-  const padding = size === 'lg' ? '4px 10px' : size === 'md' ? '3px 8px' : '2px 6px';
+  const cfg = decision ? decisionConfig[decision] || { color: 'var(--text-muted)', bg: 'rgba(139,107,78,0.1)', label: decision.toUpperCase() } : { color: 'var(--text-muted)', bg: 'rgba(139,107,78,0.1)', label: '—' };
+  const fontSize = size === 'lg' ? '13px' : size === 'md' ? '11px' : '10px';
+  const padding = size === 'lg' ? '5px 12px' : size === 'md' ? '4px 10px' : '3px 8px';
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded font-semibold whitespace-nowrap"
-      style={{ fontSize, padding, background: `${color}18`, color, border: `1px solid ${color}40` }}
+      className="inline-flex items-center gap-1.5 rounded-lg font-semibold whitespace-nowrap tracking-wide"
+      style={{
+        fontSize, padding,
+        background: cfg.bg,
+        color: cfg.color,
+        border: `1px solid ${cfg.color}25`,
+        letterSpacing: '0.03em',
+      }}
     >
-      {score != null && <span>{score.toFixed(1)}</span>}
-      <span>{label}</span>
+      {score != null && <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>{score.toFixed(1)}</span>}
+      <span>{cfg.label}</span>
     </span>
   );
 }

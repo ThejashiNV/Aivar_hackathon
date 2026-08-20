@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db, SessionLocal
-from app.seed import seed_data
+from app.seed import seed_data, seed_realistic_data
 from app.api import actions, agents, policies, dashboard, demo
 
 
@@ -15,6 +15,7 @@ async def lifespan(app: FastAPI):
     db = SessionLocal()
     try:
         seed_data(db)
+        seed_realistic_data(db)
     finally:
         db.close()
     yield
